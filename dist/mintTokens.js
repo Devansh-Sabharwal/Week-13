@@ -15,16 +15,41 @@ const web3_js_1 = require("@solana/web3.js");
 const mint = new web3_js_1.PublicKey(process.env.MINT_ADDRESS);
 const address_1 = require("./address");
 const mintTokens = (reciever, amount) => __awaiter(void 0, void 0, void 0, function* () {
-    const owner = new web3_js_1.PublicKey(reciever);
-    const connection = new web3_js_1.Connection("https://api.devnet.solana.com");
-    const ata = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, address_1.payer, mint, owner, false, "confirmed", undefined, spl_token_1.TOKEN_2022_PROGRAM_ID, spl_token_1.ASSOCIATED_TOKEN_PROGRAM_ID);
-    console.log("ata:", ata.address);
-    const signature = yield (0, spl_token_1.mintTo)(connection, address_1.payer, mint, ata.address, address_1.payer.publicKey, amount, undefined, undefined, spl_token_1.TOKEN_2022_PROGRAM_ID);
-    console.log(signature);
+    try {
+        const owner = new web3_js_1.PublicKey(reciever);
+        const connection = new web3_js_1.Connection("https://api.devnet.solana.com");
+        const ata = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, address_1.payer, mint, owner, false, "confirmed", undefined, spl_token_1.TOKEN_2022_PROGRAM_ID, spl_token_1.ASSOCIATED_TOKEN_PROGRAM_ID);
+        console.log("ata:", ata.address);
+        const signature = yield (0, spl_token_1.mintTo)(connection, address_1.payer, mint, ata.address, address_1.payer.publicKey, amount, undefined, undefined, spl_token_1.TOKEN_2022_PROGRAM_ID);
+        console.log(signature);
+    }
+    catch (e) {
+        console.log(e);
+    }
 });
 exports.mintTokens = mintTokens;
-const burnTokens = (fromAddress, toAddress, amount) => __awaiter(void 0, void 0, void 0, function* () {
+const burnTokens = (reciever, amount) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Burning tokens");
+    const owner = new web3_js_1.PublicKey(address_1.PUBLIC_KEY);
+    const connection = new web3_js_1.Connection("https://api.devnet.solana.com");
+    const ata = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, address_1.payer, mint, address_1.payer.publicKey, false, "confirmed", undefined, spl_token_1.TOKEN_2022_PROGRAM_ID, spl_token_1.ASSOCIATED_TOKEN_PROGRAM_ID);
+    console.log("ata", ata.address);
+    console.log("burning......");
+    const burnSignature = yield (0, spl_token_1.burnChecked)(connection, // connection
+    address_1.payer, // payer
+    ata.address, // token account
+    mint, // mint
+    owner, // owner of token account
+    amount, // amount
+    9, // decimals
+    [], // additional signers
+    {
+        commitment: "confirmed", // confirmation options
+    }, spl_token_1.TOKEN_2022_PROGRAM_ID);
+    console.log(burnSignature);
+    console.log("get account called");
+    const tokenAccountAfter = yield (0, spl_token_1.getAccount)(connection, ata.address, "confirmed", spl_token_1.TOKEN_2022_PROGRAM_ID);
+    console.log("Token balance after burn:", Number(tokenAccountAfter.amount) / 1000000000, "tokens");
 });
 exports.burnTokens = burnTokens;
 const sendNativeTokens = (fromAddress, toAddress, amount) => __awaiter(void 0, void 0, void 0, function* () {

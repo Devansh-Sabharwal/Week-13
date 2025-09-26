@@ -16,20 +16,21 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const express_1 = __importDefault(require("express"));
 const mintTokens_1 = require("./mintTokens");
+const web3_js_1 = require("@solana/web3.js");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.post("/helius", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const fromAddress = req.body.fromAddress;
     const toAddress = req.body.toAddress;
     const amount = req.body.amount;
-    const type = "received_native_sol";
+    const type = req.body.type || "received_DCOIN";
     if (type === "received_native_sol") {
-        yield (0, mintTokens_1.mintTokens)(fromAddress, amount);
+        yield (0, mintTokens_1.mintTokens)(fromAddress, amount * web3_js_1.LAMPORTS_PER_SOL);
     }
     else {
         // What could go wrong here?
-        yield (0, mintTokens_1.burnTokens)(fromAddress, toAddress, amount);
-        yield (0, mintTokens_1.sendNativeTokens)(fromAddress, toAddress, amount);
+        yield (0, mintTokens_1.burnTokens)(fromAddress, amount * web3_js_1.LAMPORTS_PER_SOL);
+        // await sendNativeTokens(fromAddress, toAddress, amount);
     }
     res.send("Transaction successful");
 }));
