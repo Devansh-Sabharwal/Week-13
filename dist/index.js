@@ -29,8 +29,8 @@ app.post("/helius", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     else {
         // What could go wrong here?
-        yield (0, mintTokens_1.burnTokens)(fromAddress, amount * web3_js_1.LAMPORTS_PER_SOL);
-        // await sendNativeTokens(fromAddress, toAddress, amount);
+        yield (0, mintTokens_1.burnTokens)(amount * web3_js_1.LAMPORTS_PER_SOL);
+        yield (0, mintTokens_1.sendNativeTokens)(fromAddress, toAddress, amount);
     }
     res.send("Transaction successful");
 }));

@@ -14,11 +14,10 @@ app.post("/helius", async (req, res) => {
   const type = req.body.type || "received_DCOIN";
 
   if (type === "received_native_sol") {
-    await mintTokens(fromAddress, amount * LAMPORTS_PER_SOL);
+    await mintTokens(fromAddress, amount);
   } else {
     // What could go wrong here?
-    await burnTokens(amount * LAMPORTS_PER_SOL);
-    await sendNativeTokens(fromAddress, toAddress, amount);
+    await burnTokens(fromAddress, amount);
   }
 
   res.send("Transaction successful");

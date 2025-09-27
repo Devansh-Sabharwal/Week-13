@@ -28,31 +28,50 @@ const mintTokens = (reciever, amount) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.mintTokens = mintTokens;
-const burnTokens = (reciever, amount) => __awaiter(void 0, void 0, void 0, function* () {
+const burnTokens = (amount) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Burning tokens");
-    const owner = new web3_js_1.PublicKey(address_1.PUBLIC_KEY);
-    const connection = new web3_js_1.Connection("https://api.devnet.solana.com");
-    const ata = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, address_1.payer, mint, address_1.payer.publicKey, false, "confirmed", undefined, spl_token_1.TOKEN_2022_PROGRAM_ID, spl_token_1.ASSOCIATED_TOKEN_PROGRAM_ID);
-    console.log("ata", ata.address);
-    console.log("burning......");
-    const burnSignature = yield (0, spl_token_1.burnChecked)(connection, // connection
-    address_1.payer, // payer
-    ata.address, // token account
-    mint, // mint
-    owner, // owner of token account
-    amount, // amount
-    9, // decimals
-    [], // additional signers
-    {
-        commitment: "confirmed", // confirmation options
-    }, spl_token_1.TOKEN_2022_PROGRAM_ID);
-    console.log(burnSignature);
-    console.log("get account called");
-    const tokenAccountAfter = yield (0, spl_token_1.getAccount)(connection, ata.address, "confirmed", spl_token_1.TOKEN_2022_PROGRAM_ID);
-    console.log("Token balance after burn:", Number(tokenAccountAfter.amount) / 1000000000, "tokens");
+    try {
+        const owner = new web3_js_1.PublicKey(address_1.PUBLIC_KEY);
+        const connection = new web3_js_1.Connection("https://api.devnet.solana.com");
+        const ata = yield (0, spl_token_1.getOrCreateAssociatedTokenAccount)(connection, address_1.payer, mint, address_1.payer.publicKey, false, "confirmed", undefined, spl_token_1.TOKEN_2022_PROGRAM_ID, spl_token_1.ASSOCIATED_TOKEN_PROGRAM_ID);
+        console.log("ata", ata.address);
+        console.log("burning......");
+        const burnSignature = yield (0, spl_token_1.burnChecked)(connection, // connection
+        address_1.payer, // payer
+        ata.address, // token account
+        mint, // mint
+        owner, // owner of token account
+        amount, // amount
+        9, // decimals
+        [], // additional signers
+        {
+            commitment: "confirmed", // confirmation options
+        }, spl_token_1.TOKEN_2022_PROGRAM_ID);
+        console.log(burnSignature);
+        const tokenAccountAfter = yield (0, spl_token_1.getAccount)(connection, ata.address, "confirmed", spl_token_1.TOKEN_2022_PROGRAM_ID);
+        console.log("Token balance after burn:", Number(tokenAccountAfter.amount) / 1000000000, "tokens");
+    }
+    catch (e) {
+        console.log(e);
+    }
 });
 exports.burnTokens = burnTokens;
 const sendNativeTokens = (fromAddress, toAddress, amount) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("Sending native tokens");
 });
 exports.sendNativeTokens = sendNativeTokens;
+function calcGrowth(amount) {
+    const dailyRate = 0.04; // 4% per day
+    // Starting date (24 September 2025)
+    const startDate = new Date(2025, 8, 24); // month is 0-indexed → 8 = September
+    const now = new Date();
+    // Difference in days
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const diffDays = (now.getTime() - startDate.getTime()) / msPerDay;
+    if (diffDays < 0) {
+        throw new Error("Start date is in the future!");
+    }
+    const interest = amount * dailyRate * diffDays;
+    const total = amount + interest;
+    return total;
+}
