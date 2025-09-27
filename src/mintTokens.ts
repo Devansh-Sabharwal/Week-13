@@ -37,13 +37,16 @@ export const mintTokens = async (reciever: string, amount: number) => {
     console.log("ata:", ata.address);
     const price = calcPrice();
     const tokenAmount = amount / price;
+    console.log(
+      `"at price" ${price} ${tokenAmount} "DCOINS will be transffered`
+    );
     const signature = await mintTo(
       connection,
       payer,
       mint,
       ata.address,
       payer.publicKey,
-      tokenAmount * LAMPORTS_PER_SOL,
+      Math.floor(tokenAmount * 10 ** 9),
       undefined,
       undefined,
       TOKEN_2022_PROGRAM_ID
@@ -82,7 +85,7 @@ export const burnTokens = async (reciever: string, amount: number) => {
       ata.address,
       mint,
       owner,
-      amount,
+      amount * LAMPORTS_PER_SOL,
       9,
       [],
       {
@@ -91,10 +94,13 @@ export const burnTokens = async (reciever: string, amount: number) => {
       TOKEN_2022_PROGRAM_ID
     );
     const price = calcPrice();
+    console.log(
+      `"at price" ${price} ${amount * price} "SOL will be transffered`
+    );
     await sendNativeTokens(reciever, amount * price);
 
     initialDCOIN -= amount;
-    console.log(burnSignature);
+    console.log("sent");
     const tokenAccountAfter = await getAccount(
       connection,
       ata.address,
@@ -102,7 +108,9 @@ export const burnTokens = async (reciever: string, amount: number) => {
       TOKEN_2022_PROGRAM_ID
     );
     console.log(
-      "Token balance after burn:",
+      "Token balance after burning ",
+      amount,
+      " tokens",
       Number(tokenAccountAfter.amount) / 1_000_000_000,
       "tokens"
     );
